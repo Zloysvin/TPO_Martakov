@@ -41,11 +41,6 @@ class Ball {
         }
     }
 
-    // Статичний метод (не пов'язаний з конкретним об'єктом)
-    public static void f() {
-        int a = 0;
-    }
-
     // Метод для малювання м'яча
     public void draw(Graphics2D g2) {
         // Малюємо м'яч
@@ -79,15 +74,15 @@ class Ball {
         // Перемальовування вікна
         this.canvas.repaint();
     }
-    public static double l (int x1, int y1, int x2, int y2){
+    public static double distance (int x1, int y1, int x2, int y2){
         return Math.pow(Math.pow(x2-x1, 2)+Math.pow(y2-y1, 2), 0.5);
     }
 
     public boolean goal(){
-        if (l(20,20, x, y)<=10 ||
-                l(this.canvas.getWidth()-20,20, x, y)<=10 ||
-                l(this.canvas.getWidth()-20,this.canvas.getHeight()-20, x, y)<=10 ||
-                l(20,this.canvas.getHeight()-20, x, y)<=10) {
+        if (distance(20,20, x, y)<=10 ||
+                distance(this.canvas.getWidth()-20,20, x, y)<=10 ||
+                distance(this.canvas.getWidth()-20,this.canvas.getHeight()-20, x, y)<=10 ||
+                distance(20,this.canvas.getHeight()-20, x, y)<=10) {
             return true;
         } else return false;
     }
@@ -130,104 +125,92 @@ class BallCanvas extends JPanel {
     }
 }
 
-// Лістинг класу BallThread (Потік для м'яча)
 class BallThread extends Thread {
-    private Ball b; // М'яч, який буде рухатися
-    private BallCanvas canvas; // Посилання на BallCanvas
+    private Ball b;
+    private BallCanvas canvas;
 
-    // Конструктор класу BallThread
     public BallThread(Ball ball, BallCanvas canvas) {
         b = ball;
-        this.canvas = canvas; // Ініціалізація посилання на BallCanvas
+        this.canvas = canvas;
     }
 
-    // Метод, який виконується при запуску потоку
     @Override
     public void run() {
         try {
-            // Безкінечний цикл для руху м'яча
             for (int i = 1; i < 10000; i++) {
                 if (b.goal()) {
                     canvas.del(b);
                     synchronized(canvas){Ball.count++;}
-                    // Оновлення текстового поля при зміні значення count
                     ((BounceFrame) SwingUtilities.getWindowAncestor(canvas)).updateCountTextField();
                     b.move();
                     break;
                 }
                 b.move();
                 System.out.println("Thread name = " + Thread.currentThread().getName());
-                Thread.sleep(5); // Затримка для плавності руху
+                Thread.sleep(5);
             }
         } catch (InterruptedException ex) {
-            // Обробка виняткової ситуації (переривання потоку)
         }
     }
 }
 
-// Лістинг класу BounceFrame (Головне вікно програми)
 class BounceFrame extends JFrame {
-    private BallCanvas canvas; // Панель для відображення м'ячів
+    private BallCanvas canvas;
 
-    private JTextField countTextField; // Додано текстове поле
-    public static final int WIDTH = 450; // Ширина вікна
-    public static final int HEIGHT = 350; // Висота вікна
+    private JTextField countTextField;
+    public static final int WIDTH = 450;
+    public static final int HEIGHT = 350;
 
-    // Конструктор класу BounceFrame
     public BounceFrame() {
         this.setSize(WIDTH, HEIGHT);
         this.setTitle("Bounce programm");
-        this.canvas = new BallCanvas(); // Створення панелі для відображення м'ячів
+        this.canvas = new BallCanvas();
         System.out.println("In Frame Thread name = " + Thread.currentThread().getName());
         Container content = this.getContentPane();
-        content.add(this.canvas, BorderLayout.CENTER); // Додавання панелі на вікно
+        content.add(this.canvas, BorderLayout.CENTER);
 
-        // Додавання текстового поля
         countTextField = new JTextField("0");
         countTextField.setEditable(false);
         content.add(countTextField, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.lightGray);
-        JButton buttonStart = new JButton("Start"); // Кнопка для запуску м'яча
-        JButton buttonStop = new JButton("Stop"); // Кнопка для завершення програми
+        JButton buttonStart = new JButton("Start");
+        JButton buttonStop = new JButton("Stop");
 
-        // Обробник події для кнопки "Start"
         buttonStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Ball b = new Ball(canvas);
                 canvas.add(b);
                 BallThread thread = new BallThread(b, canvas);
-                thread.start(); // Запуск потоку для руху м'яча
+                thread.start();
                 System.out.println("Thread name =" + thread.getName());
             }
         });
 
-        // Обробник події для кнопки "Stop"
         buttonStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0); // Завершення програми
+                System.exit(0);
             }
         });
 
         buttonPanel.add(buttonStart);
         buttonPanel.add(buttonStop);
-        content.add(buttonPanel, BorderLayout.SOUTH); // Додавання панелі з кнопками на вікно
+        content.add(buttonPanel, BorderLayout.SOUTH);
     }
-    // Оновлення значення текстового поля countTextField
+
     public void updateCountTextField() {
         countTextField.setText(String.valueOf(Ball.count));
     }
 }
 
-// Лістинг класу Bounce (Головний клас)
 class Bounce {
     public static void main(String[] args) {
         BounceFrame frame = new BounceFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true); // Виведення вікна на екран
+        frame.setVisible(true);
         System.out.println("Thread name =" + Thread.currentThread().getName());
     }
 }

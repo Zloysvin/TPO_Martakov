@@ -3,16 +3,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class myThread extends Thread{
-    char c;
-    public static int l = 0;
-    myThread(String name, char c){
+    char symbol;
+
+    myThread(String name, char symbol){
         super(name);
-        this.c=c;
+        this.symbol = symbol;
     }
+
     public void run(){
-        for (int i=0; i<100; i++){
-            for(int j=0; j<100; j++){
-                System.out.print(c);
+        for (int i = 0; i < 100; i++){
+            for(int j = 0; j < 100; j++){
+                System.out.print(symbol);
             }
             System.out.print('\n');
         }
@@ -21,11 +22,11 @@ class myThread extends Thread{
 
 class Sync{
     private boolean permission;
-    private int num;
+    private int count;
     private boolean stop;
     public Sync(){
         permission = true;
-        num = 0;
+        count = 0;
         stop = false;
     }
     public synchronized boolean getPermission(){
@@ -44,27 +45,29 @@ class Sync{
         }
         System.out.print(s);
         permission = !permission;
-        num++;
-        if (num%100==0)
+        count++;
+        if (count % 100 == 0)
             System.out.println();
-        if (num+1==10000)
-            stop=true;
+        if (count + 1 == 10000)
+            stop = true;
         notifyAll();
     }
 }
 class SymbolSynchTest implements Runnable{
-    char s;
+    char symbol;
     Sync sync;
     boolean controlValue;
+
     public  SymbolSynchTest (Sync sync, boolean controlValue, char symbol){
-        s=symbol;
-        this.controlValue=controlValue;
+        this.symbol = symbol;
+        this.controlValue = controlValue;
         this.sync = sync;
     }
+
     @Override
     public void run(){
         while (true){
-            sync.waitAndChange(controlValue, s);
+            sync.waitAndChange(controlValue, symbol);
             if(sync.isStop())
                 return;
         }
@@ -72,9 +75,6 @@ class SymbolSynchTest implements Runnable{
 }
 public class main {
     public static void main(String[] args) {
-//        myThread t1 = new myThread("t1", '-');
-//        myThread t2 = new myThread("t2", '|');
-
         Sync s = new Sync();
 
         Thread t1 = new Thread(new SymbolSynchTest(s,true, '-'));

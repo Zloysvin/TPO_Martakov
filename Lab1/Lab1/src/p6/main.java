@@ -12,7 +12,7 @@ class Counter {
         return count;
     }
 }
-class SyncCounter1{
+class SyncCounter{
     private int count=0;
     public synchronized void s_increment(){
         count++;
@@ -24,7 +24,7 @@ class SyncCounter1{
         return count;
     }
 }
-class SyncCounter2{
+class SyncCounterObj{
     private int count=0;
     private Object obj = new Object();
     public  void s_increment(){
@@ -66,15 +66,15 @@ public class main {
         }
         System.out.print("Async Count = " + counter.value());
 
-        SyncCounter1 counter1 = new SyncCounter1();
+        SyncCounter syncCounter1 = new SyncCounter();
         Thread t1_1 = new Thread(()->{
             for (int i =0; i< 10000; i++){
-                counter1.s_increment();
+                syncCounter1.s_increment();
             }
         });
         Thread t2_1 = new Thread(()->{
             for (int i =0; i< 10000; i++){
-                counter1.s_decrement();
+                syncCounter1.s_decrement();
             }
         });
         t1_1.start();
@@ -85,17 +85,17 @@ public class main {
         }
         catch  (InterruptedException e) {
         }
-        System.out.print("\nSync method Count = " + counter1.s_value());
+        System.out.print("\nSync method Count = " + syncCounter1.s_value());
 
-        SyncCounter2 counter2 = new SyncCounter2();
+        SyncCounterObj syncCounter2 = new SyncCounterObj();
         Thread t1_2 = new Thread(()->{
             for (int i =0; i< 10000; i++){
-                counter2.s_increment();
+                syncCounter2.s_increment();
             }
         });
         Thread t2_2 = new Thread(()->{
             for (int i =0; i< 10000; i++){
-                counter2.s_decrement();
+                syncCounter2.s_decrement();
             }
         });
         t1_2.start();
@@ -106,7 +106,7 @@ public class main {
         }
         catch  (InterruptedException e) {
         }
-        System.out.print("\nSync block Count = " + counter2.s_value());
+        System.out.print("\nSync block Count = " + syncCounter2.s_value());
 
         ReentrantLock locker = new ReentrantLock();
         Counter counter3 = new Counter();
@@ -141,7 +141,7 @@ public class main {
         }
         catch  (InterruptedException e) {
         }
-        System.out.print("\nSync ReentrantLock Count = " + counter2.s_value());
+        System.out.print("\nSync ReentrantLock Count = " + syncCounter2.s_value());
 
 
     }

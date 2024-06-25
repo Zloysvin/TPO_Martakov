@@ -130,7 +130,7 @@ class BounceFrame extends JFrame {
                 canvas.add(b);
                 BallThread thread = new BallThread(b);
                 thread.start();
-                System.out.println("Thread: " + thread.getName());
+                System.out.println("Thread Started: " + thread.getName());
             }
         });
 
